@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Link, Text, Image, Center, WrapItem, Button, useDisclosure } from '@chakra-ui/react'
+import { Link, Text, Center, WrapItem, Avatar, Button, useDisclosure } from '@chakra-ui/react'
 import { AddIcon, HamburgerIcon } from '@chakra-ui/icons'
 import AddOrEditModal from './AddOrEditModal'
 
-const Card = ({ href, imgSrc, text, imgAlt = 'an icon' }) => {
+const Card = ({ href, text, index, setCardData, cardData, avatarName = 'an icon' }) => {
   const [hovered, setHover] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const modalProps = {
@@ -11,6 +11,9 @@ const Card = ({ href, imgSrc, text, imgAlt = 'an icon' }) => {
     onClose,
     href,
     text,
+    index,
+    setCardData,
+    cardData,
   }
   return (
     <>
@@ -27,19 +30,28 @@ const Card = ({ href, imgSrc, text, imgAlt = 'an icon' }) => {
               rounded="md"
               _hover={{ backgroundColor: 'gray.600', boxShadow: '0 0px 8px black' }}
             >
-              <Image src={imgSrc} alt={imgAlt} boxSize="80px" objectFit="cover" />
-              <Text maxW="100px" fontSize="14px" textAlign="center" pb="8px" isTruncated>
+              <Avatar
+                src={`${href}favicon.ico`}
+                name={avatarName}
+                boxSize="50px"
+                my={2}
+                p="3px"
+                bg="gray.400"
+                boxShadow={hovered ? '0 0 20px black' : ''}
+              />
+              <Text maxW="100px" fontSize="14px" textAlign="center" isTruncated>
                 {text}
               </Text>
             </Center>
           </Link>
           <HamburgerIcon
-            w={3}
-            h={3}
+            w={4}
+            h={4}
+            p="3px"
             color="gray.500"
             position="absolute"
-            top="10px"
-            right="10px"
+            top="5px"
+            right="5px"
             onClick={onOpen}
             cursor="pointer"
             style={{ display: hovered ? 'block' : 'none' }}
