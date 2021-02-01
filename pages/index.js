@@ -1,14 +1,31 @@
-import { Center, VStack, Wrap } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { Card, HeadContent, SearchBar, EmptyPlaceHolderCard, GoogleHeading } from '../components'
+import { Center, VStack, Wrap, useDisclosure } from '@chakra-ui/react'
+import React, { useState, useEffect } from 'react'
+import { Card, HeadContent, SearchBar, EmptyPlaceHolderCard, GoogleHeading, AddOrEditModal } from '../components'
 import { getData } from '../utils'
 
 export default function Home() {
-  const [cardData, setCardData] = useState([
-    { href: 'https://www.baidu.com/', text: '百度' },
-    { href: 'https://www.lagou.com/', text: '拉勾' },
-    { href: 'https://www.douban.com/', text: '豆瓣' },
-  ])
+  const [toUpdate, setToUpdate] = useState()
+  const [openedCardIndex, setOpenedCardIndex] = useState(-1)
+  const [cardData, setCardData] = useState(getData())
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  // useEffect(() => {
+  //   setCardData(getData() || [])
+  // }, [])
+  useEffect(() => {
+    if (toUpdate) {
+      setCardData(getData())
+      setToUpdate(false)
+    }
+  }, [toUpdate])
+
+  const modalProps = {
+    isOpen,
+    onClose,
+    href: openedCardIndex === -1 ? '' : cardData[openedCardIndex].href,
+    text: openedCardIndex === -1 ? '' : cardData[openedCardIndex].text,
+    index: openedCardIndex === -1 ? -1 : openedCardIndex,
+    setToUpdate,
+  }
   return (
     <>
       <HeadContent text="New Tab" />
@@ -19,13 +36,14 @@ export default function Home() {
           <Wrap spacing="20px" justify="center">
             {cardData &&
               cardData.map((c, i) => (
-                <Card key={i + ''} {...c} index={i} setCardData={setCardData} cardData={cardData} />
+                <Card key={i + ''} {...c} index={i} onOpen={onOpen} setOpenedCardIndex={setOpenedCardIndex} />
               ))}
-            <Card setCardData={setCardData} cardData={cardData} />
+            <Card onOpen={onOpen} setOpenedCardIndex={setOpenedCardIndex} />
             <FormatPlaceholder />
           </Wrap>
         </VStack>
       </Center>
+      <AddOrEditModal {...modalProps} />
     </>
   )
 }
@@ -40,10 +58,10 @@ const FormatPlaceholder = () => (
   </>
 )
 
-// export function getServerSideProps() {
+// export async function getInitialProps() {
 //   return {
 //     props: {
-//       cardData: getData(),
+//       cardData: await getData(),
 //     },
 //   }
 // }

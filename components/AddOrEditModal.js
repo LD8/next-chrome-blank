@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Modal,
   ModalOverlay,
@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { getData, setData } from '../utils'
 
-const AddOrEditModal = ({ isOpen, onClose, href, text, index, cardData, setCardData }) => {
+const AddOrEditModal = ({ isOpen, onClose, href, text, index, setToUpdate }) => {
   const [siteName, setSiteName] = useState(text || '')
   const [url, setUrl] = useState(href || '')
   const handleSubmit = () => {
@@ -24,29 +24,31 @@ const AddOrEditModal = ({ isOpen, onClose, href, text, index, cardData, setCardD
       return
     }
     const datum = { href: url, text: siteName }
-    const newData = [...cardData]
+    const newData = getData()
     if (index !== undefined && index !== null) {
-      // 正在修改现有数据
-      console.log('正在修改现有数据')
+      // console.log('正在修改现有数据')
       newData.splice(index, 1, datum)
-      console.log(newData)
     } else {
-      // 正在添加新数据
-      console.log('正在添加新数据')
+      // console.log('正在添加新数据')
       newData.push(datum)
       setSiteName('')
       setUrl('')
     }
-    setCardData(newData)
+    setData(newData)
+    setToUpdate(true)
     onClose()
   }
 
   const handleDelete = () => {
-    const newData = [...cardData]
+    // console.log('正在删除数据')
+    const newData = getData()
     newData.splice(index, 1)
-    setCardData(newData)
-    // onClose()
+    setData(newData)
+    setToUpdate(true)
+    onClose()
   }
+  useEffect(() => () => {
+  })
 
   return (
     <Modal isOpen={isOpen} isCentered>
@@ -67,7 +69,7 @@ const AddOrEditModal = ({ isOpen, onClose, href, text, index, cardData, setCardD
 
         <ModalFooter>
           <Flex w="100%">
-            {index !== undefined && (
+            {index !== -1 && (
               <Button colorScheme="red" mr={3} onClick={handleDelete}>
                 Delete
               </Button>

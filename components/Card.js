@@ -3,17 +3,11 @@ import { Link, Text, Center, WrapItem, Avatar, Button, useDisclosure } from '@ch
 import { AddIcon, HamburgerIcon } from '@chakra-ui/icons'
 import AddOrEditModal from './AddOrEditModal'
 
-const Card = ({ href, text, index, setCardData, cardData, avatarName = 'an icon' }) => {
-  const [hovered, setHover] = useState(false)
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const modalProps = {
-    isOpen,
-    onClose,
-    href,
-    text,
-    index,
-    setCardData,
-    cardData,
+const Card = ({ href, text, index = -1, setOpenedCardIndex, onOpen, avatarName = 'an icon' }) => {
+  const [hovered, setHovered] = useState(false)
+  const handleOpen = () => {
+    setOpenedCardIndex(index)
+    onOpen()
   }
   return (
     <>
@@ -21,8 +15,8 @@ const Card = ({ href, text, index, setCardData, cardData, avatarName = 'an icon'
         <WrapItem position="relative">
           <Link href={href} isExternal>
             <Center
-              onMouseEnter={() => setHover(true)}
-              onMouseLeave={() => setTimeout(() => setHover(false), 3000)}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setTimeout(() => setHovered(false), 3000)}
               boxSize="120px"
               bg="gray.700"
               d="flex"
@@ -52,7 +46,7 @@ const Card = ({ href, text, index, setCardData, cardData, avatarName = 'an icon'
             position="absolute"
             top="5px"
             right="5px"
-            onClick={onOpen}
+            onClick={handleOpen}
             cursor="pointer"
             style={{ display: hovered ? 'block' : 'none' }}
             _hover={{ color: 'white' }}
@@ -60,14 +54,13 @@ const Card = ({ href, text, index, setCardData, cardData, avatarName = 'an icon'
         </WrapItem>
       ) : (
         <WrapItem>
-          <Button onClick={onOpen} boxSize="120px" bg="gray.600" d="flex" flexDir="column">
+          <Button onClick={handleOpen} boxSize="120px" bg="gray.600" d="flex" flexDir="column">
             <Text maxW="100px" textAlign="center" isTruncated>
               <AddIcon />
             </Text>
           </Button>
         </WrapItem>
       )}
-      <AddOrEditModal {...modalProps} />
     </>
   )
 }
