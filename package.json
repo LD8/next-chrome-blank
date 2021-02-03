@@ -1,5 +1,6 @@
 {
-  "name": "init",
+  "homepage": "http://ld8.github.io/next-chrome-blank",
+  "name": "next-chrome-blank",
   "version": "0.1.0",
   "private": true,
   "scripts": {
