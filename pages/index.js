@@ -1,14 +1,41 @@
 import { Center, VStack, Wrap } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { Card, HeadContent, SearchBar, EmptyPlaceHolderCard, GoogleHeading } from '../components'
-import { getData } from '../utils'
+import React, { useState, useEffect, useReducer } from 'react'
+import { Card, HeadContent, SearchBar, EmptyPlaceHolderCard, GoogleHeading, AddOrEditModal } from '../components'
+import { getData, setData } from '../utils'
+
+const reducer = (state, action) => {
+  const newState = [...state]
+  switch (action.type) {
+    case 'add_card':
+      newState.push(action.payload.datum)
+      return newState
+    case 'edit_card':
+      newState.splice(action.payload.index, 1, action.payload.datum)
+      return newState
+    case 'del_card':
+      newState.splice(action.payload.index, 1)
+      return newState
+    default:
+      return state
+  }
+}
 
 export default function Home() {
-  const [cardData, setCardData] = useState([
-    { href: 'https://www.baidu.com/', text: '百度' },
-    { href: 'https://www.lagou.com/', text: '拉勾' },
-    { href: 'https://www.douban.com/', text: '豆瓣' },
-  ])
+  const [cardData, dispatch] = useReducer(reducer, getData())
+  const [openedCardIndex, setOpenedCardIndex] = useState(null)
+  // console.log('cardData when rerendered: ', cardData)
+  useEffect(() => {
+    // 存入 localStorage 做持久化处理
+    setData(cardData)
+  }, [cardData])
+
+  const modalProps = {
+    dispatch,
+    cardData,
+    index: openedCardIndex,
+    setOpenedCardIndex,
+  }
+
   return (
     <>
       <HeadContent text="New Tab" />
@@ -18,14 +45,13 @@ export default function Home() {
           <SearchBar />
           <Wrap spacing="20px" justify="center">
             {cardData &&
-              cardData.map((c, i) => (
-                <Card key={i + ''} {...c} index={i} setCardData={setCardData} cardData={cardData} />
-              ))}
-            <Card setCardData={setCardData} cardData={cardData} />
+              cardData.map((c, i) => <Card key={i + ''} {...c} index={i} setOpenedCardIndex={setOpenedCardIndex} />)}
+            <Card setOpenedCardIndex={setOpenedCardIndex} />
             <FormatPlaceholder />
           </Wrap>
         </VStack>
       </Center>
+      <AddOrEditModal {...modalProps} />
     </>
   )
 }
@@ -39,11 +65,3 @@ const FormatPlaceholder = () => (
     <EmptyPlaceHolderCard />
   </>
 )
-
-// export function getServerSideProps() {
-//   return {
-//     props: {
-//       cardData: getData(),
-//     },
-//   }
-// }
