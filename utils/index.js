@@ -3,15 +3,18 @@ export const CARD_DATA = 'card_data'
 export const getData = () => {
   if (typeof window !== 'undefined') {
     if (
-      typeof window.localStorage.getItem(CARD_DATA) === 'string' &&
-      window.localStorage.getItem(CARD_DATA) !== 'undefined'
+      window.localStorage.getItem(CARD_DATA) &&
+      window.localStorage.getItem(CARD_DATA) !== 'undefined' &&
+      typeof window.localStorage.getItem(CARD_DATA) === 'string'
     ) {
       return JSON.parse(window.localStorage.getItem(CARD_DATA))
     }
     return [
-      // { href: 'https://www.baidu.com/', text: '百度' },
-      // { href: 'https://www.lagou.com/', text: '拉勾' },
-      // { href: 'https://www.douban.com/', text: '豆瓣' },
+      { href: 'http://www.baidu.com/', text: '百度' },
+      { href: 'http://www.lagou.com/', text: '拉勾' },
+      { href: 'http://www.douban.com/', text: '豆瓣' },
+      { href: 'http://www.airbnb.com/', text: 'airbnb' },
+      { href: 'http://www.liepin.com/', text: '猎聘' },
     ]
   }
 }

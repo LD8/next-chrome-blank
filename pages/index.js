@@ -1,31 +1,41 @@
-import { Center, VStack, Wrap, useDisclosure } from '@chakra-ui/react'
-import React, { useState, useEffect } from 'react'
+import { Center, VStack, Wrap } from '@chakra-ui/react'
+import React, { useState, useEffect, useReducer } from 'react'
 import { Card, HeadContent, SearchBar, EmptyPlaceHolderCard, GoogleHeading, AddOrEditModal } from '../components'
-import { getData } from '../utils'
+import { getData, setData } from '../utils'
+
+const reducer = (state, action) => {
+  const newState = [...state]
+  switch (action.type) {
+    case 'add_card':
+      newState.push(action.payload.datum)
+      return newState
+    case 'edit_card':
+      newState.splice(action.payload.index, 1, action.payload.datum)
+      return newState
+    case 'del_card':
+      newState.splice(action.payload.index, 1)
+      return newState
+    default:
+      return state
+  }
+}
 
 export default function Home() {
-  const [toUpdate, setToUpdate] = useState()
-  const [openedCardIndex, setOpenedCardIndex] = useState(-1)
-  const [cardData, setCardData] = useState(getData())
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  // useEffect(() => {
-  //   setCardData(getData() || [])
-  // }, [])
+  const [cardData, dispatch] = useReducer(reducer, getData())
+  const [openedCardIndex, setOpenedCardIndex] = useState(null)
+  // console.log('cardData when rerendered: ', cardData)
   useEffect(() => {
-    if (toUpdate) {
-      setCardData(getData())
-      setToUpdate(false)
-    }
-  }, [toUpdate])
+    // 存入 localStorage 做持久化处理
+    setData(cardData)
+  }, [cardData])
 
   const modalProps = {
-    isOpen,
-    onClose,
-    href: openedCardIndex === -1 ? '' : cardData[openedCardIndex].href,
-    text: openedCardIndex === -1 ? '' : cardData[openedCardIndex].text,
-    index: openedCardIndex === -1 ? -1 : openedCardIndex,
-    setToUpdate,
+    dispatch,
+    cardData,
+    index: openedCardIndex,
+    setOpenedCardIndex,
   }
+
   return (
     <>
       <HeadContent text="New Tab" />
@@ -35,10 +45,8 @@ export default function Home() {
           <SearchBar />
           <Wrap spacing="20px" justify="center">
             {cardData &&
-              cardData.map((c, i) => (
-                <Card key={i + ''} {...c} index={i} onOpen={onOpen} setOpenedCardIndex={setOpenedCardIndex} />
-              ))}
-            <Card onOpen={onOpen} setOpenedCardIndex={setOpenedCardIndex} />
+              cardData.map((c, i) => <Card key={i + ''} {...c} index={i} setOpenedCardIndex={setOpenedCardIndex} />)}
+            <Card setOpenedCardIndex={setOpenedCardIndex} />
             <FormatPlaceholder />
           </Wrap>
         </VStack>
@@ -57,11 +65,3 @@ const FormatPlaceholder = () => (
     <EmptyPlaceHolderCard />
   </>
 )
-
-// export async function getInitialProps() {
-//   return {
-//     props: {
-//       cardData: await getData(),
-//     },
-//   }
-// }
